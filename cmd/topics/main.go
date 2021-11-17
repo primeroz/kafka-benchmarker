@@ -39,15 +39,21 @@ func main() {
 		}
 
 		if !*delete {
+			compression := "snappy"
+			minISR := fmt.Sprintf("%d", *nReplicas-1)
+			retentionMs := "1800000" // 30 minutes
+			segmentBytes := "100000000"
+			retentionBytes := "500000000"
+
 			err = admin.CreateTopic(topicName, &sarama.TopicDetail{
 				NumPartitions:     *nPartitions,
 				ReplicationFactor: *nReplicas,
 				ConfigEntries: map[string]*string{
-					"compression":         "snappy",
-					"min.insync.replicas": fmt.Sprintf("%d", *nReplicas-1),
-					"retention.ms":        "1800000", // 30 minutes
-					"segment.bytes":       "100000000",
-					"retention.bytes":     "500000000",
+					"compression":         &compression,
+					"min.insync.replicas": &minISR,
+					"retention.ms":        &retentionMs,
+					"segment.bytes":       &segmentBytes,
+					"retention.bytes":     &retentionBytes,
 				},
 			}, false)
 			if err != nil {
