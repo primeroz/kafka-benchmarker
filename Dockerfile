@@ -15,6 +15,7 @@ FROM alpine:3.14
 
 COPY --from=builder /go/bin/producer /usr/local/bin
 COPY --from=builder /go/bin/consumer /usr/local/bin
+COPY --from=builder /go/bin/topics /usr/local/bin
 COPY --from=pause /pause /pause
 
 RUN apk add --no-cache jq bash curl

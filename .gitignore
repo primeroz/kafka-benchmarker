@@ -1,2 +1,5 @@
 *.swp
 vendor/
+cmd/producer/producer
+cmd/consumer/consumer
+cmd/topics/topics
