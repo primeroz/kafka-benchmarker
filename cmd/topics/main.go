@@ -35,7 +35,7 @@ func main() {
 		if *nTopics == 1 {
 			topicName = *topic
 		} else {
-			topicName = fmt.Sprintf("%s-%s", *topic, i)
+			topicName = fmt.Sprintf("%s-%d", *topic, i)
 		}
 
 		if !*delete {
