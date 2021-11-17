@@ -12,8 +12,8 @@ import (
 var (
 	brokerList  = kingpin.Flag("brokerList", "List of brokers to connect").Default("localhost:9092").Strings()
 	topic       = kingpin.Flag("topic", "Topic name").Default("topic").String()
-	nPartitions = kingpin.Flag("nPartitions", "Number Of partitions per topic to create").Default("1").Int()
-	nReplicas   = kingpin.Flag("nReplicas", "Number Of Replicas per topic to create").Default("3").Int()
+	nPartitions = kingpin.Flag("nPartitions", "Number Of partitions per topic to create").Default("1").Int32()
+	nReplicas   = kingpin.Flag("nReplicas", "Number Of Replicas per topic to create").Default("3").Int16()
 	nTopics     = kingpin.Flag("nTopics", "Number Of topics to create").Default("5").Int()
 	delete      = kingpin.Flag("delete", "Enable delete mode. default is create").Bool()
 )
@@ -47,7 +47,7 @@ func main() {
 				log.Printf("Error while creating topic: ", err.Error())
 			}
 		} else {
-			err = admin.CreateTopic(topicName)
+			err = admin.DeleteTopic(topicName)
 			if err != nil {
 				log.Printf("Error while creating topic: ", err.Error())
 			}
