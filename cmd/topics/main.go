@@ -42,6 +42,13 @@ func main() {
 			err = admin.CreateTopic(topicName, &sarama.TopicDetail{
 				NumPartitions:     *nPartitions,
 				ReplicationFactor: *nReplicas,
+				ConfigEntries: map[string]*string{
+					"compression":         "snappy",
+					"min.insync.replicas": fmt.Sprintf("%d", *nReplicas-1),
+					"retention.ms":        "1800000", // 30 minutes
+					"segment.bytes":       "100000000",
+					"retention.bytes":     "500000000",
+				},
 			}, false)
 			if err != nil {
 				log.Printf("Error while creating topic: ", err.Error())
