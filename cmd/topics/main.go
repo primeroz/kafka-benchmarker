@@ -49,7 +49,7 @@ func main() {
 				NumPartitions:     *nPartitions,
 				ReplicationFactor: *nReplicas,
 				ConfigEntries: map[string]*string{
-					"compression":         &compression,
+					"compression.type":    &compression,
 					"min.insync.replicas": &minISR,
 					"retention.ms":        &retentionMs,
 					"segment.bytes":       &segmentBytes,
