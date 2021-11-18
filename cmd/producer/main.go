@@ -50,7 +50,7 @@ func produceInRandomTopic(producer sarama.SyncProducer, messages int) {
 	}
 
 	for m := 0; m < messages; m++ {
-		myStr := RandomString(int(math.Min(((rand.NormFloat64() * float64(1000000/2)) + float64(1000000/2)), 999999)))
+		myStr := RandomString(int(math.Min((math.Abs(rand.NormFloat64()*float64(1000000/2)) + float64(1000000/2)), 999999)))
 
 		msg := &sarama.ProducerMessage{
 			Topic: topicName,
