@@ -19,13 +19,23 @@ var (
 	topicRangeStart = kingpin.Flag("topicRangeStart", "Topic range Start").Default("0").Int()
 	topicRangeEnd   = kingpin.Flag("topicRangeEnd", "Topic range End").Default("0").Int()
 	nMessages       = kingpin.Flag("nMessages", "Number of Messages").Default("1000").Int()
-	nThreads        = kingpin.Flag("nThreads", "Number of Threads").Default("10").Int()
+	nThreads        = kingpin.Flag("nThreads", "Number of Threads").Default("3").Int()
 	maxRetry        = kingpin.Flag("maxRetry", "Retry limit").Default("2").Int()
 )
 
 var wg sync.WaitGroup
 
-func produceInRandomTopic(producer sarama.SyncProducer) {
+func RandomString(length int) string {
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+func produceInRandomTopic(producer sarama.SyncProducer, messages int) {
 	defer wg.Done()
 
 	var topicName string
@@ -37,16 +47,20 @@ func produceInRandomTopic(producer sarama.SyncProducer) {
 		topicName = fmt.Sprintf("%s-%d", *topic, rand.Intn(*topicRangeEnd-*topicRangeStart))
 	}
 
-	msg := &sarama.ProducerMessage{
-		Topic: topicName,
-		Value: sarama.StringEncoder("Something Cool"),
-	}
+	for m := 0; m < messages; m++ {
+		myStr := RandomString(rand.Intn(1000000))
 
-	partition, offset, err := producer.SendMessage(msg)
-	if err != nil {
-		log.Printf("%s", err)
+		msg := &sarama.ProducerMessage{
+			Topic: topicName,
+			Value: sarama.StringEncoder(myStr),
+		}
+
+		partition, offset, err := producer.SendMessage(msg)
+		if err != nil {
+			log.Printf("%s", err)
+		}
+		log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d) of length %d\n", topicName, partition, offset, len(myStr))
 	}
-	log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", topicName, partition, offset)
 }
 
 func main() {
@@ -68,9 +82,9 @@ func main() {
 	}()
 
 	runtime.GOMAXPROCS(*nThreads)
-	for i := 0; i < *nMessages; i++ {
+	for i := 0; i < *nThreads; i++ {
 		wg.Add(1)
-		go produceInRandomTopic(producer)
+		go produceInRandomTopic(producer, (*nMessages)/(*nThreads))
 	}
 	wg.Wait()
 }
