@@ -40,16 +40,17 @@ func produceInRandomTopic(producer sarama.SyncProducer, messages int) {
 	defer wg.Done()
 
 	var topicName string
-	if *topicRangeStart == 0 && *topicRangeEnd == 0 {
-		topicName = *topic
-	} else if *topicRangeStart == *topicRangeEnd {
-		topicName = fmt.Sprintf("%s-%d", *topic, *topicRangeStart)
-	} else {
-		topicName = fmt.Sprintf("%s-%d", *topic, rand.Intn(*topicRangeEnd-*topicRangeStart))
-		//topicName = fmt.Sprintf("%s-%d", *topic, int(math.Min((rand.ExpFloat64()/10)*max, max)))
-	}
 
 	for m := 0; m < messages; m++ {
+		if *topicRangeStart == 0 && *topicRangeEnd == 0 {
+			topicName = *topic
+		} else if *topicRangeStart == *topicRangeEnd {
+			topicName = fmt.Sprintf("%s-%d", *topic, *topicRangeStart)
+		} else {
+			topicName = fmt.Sprintf("%s-%d", *topic, rand.Intn(*topicRangeEnd-*topicRangeStart)+(*topicRangeStart))
+			//topicName = fmt.Sprintf("%s-%d", *topic, int(math.Min((rand.ExpFloat64()/10)*max, max)))
+		}
+
 		//myStr := RandomString(int(math.Min((math.Abs(rand.NormFloat64()*float64(1000000/2)) + float64(1000000/2)), 999999)))
 		strLength := math.Min((rand.ExpFloat64()/10)*1000000, 999999)
 		myStr := RandomString(int(strLength))
