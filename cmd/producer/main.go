@@ -76,6 +76,14 @@ func main() {
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Retry.Max = *maxRetry
 	config.Producer.Return.Successes = true
+	config.Producer.Retry.Backoff = (10 * time.Second)
+	config.Metadata.Retry.Max = 1
+	config.Metadata.Retry.Backoff = (10 * time.Second)
+	config.Metadata.RefreshFrequency = (15 * time.Minute)
+	config.Producer.Timeout = (10 * time.Second)
+	config.Net.ReadTimeout = (10 * time.Second)
+	config.Net.DialTimeout = (10 * time.Second)
+	config.Net.WriteTimeout = (10 * time.Second)
 	producer, err := sarama.NewSyncProducer(*brokerList, config)
 	if err != nil {
 		log.Panic(err)
