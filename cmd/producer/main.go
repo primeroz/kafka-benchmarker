@@ -1,7 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
+	"sync"
+	"time"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
@@ -9,12 +13,44 @@ import (
 )
 
 var (
-	brokerList = kingpin.Flag("brokerList", "List of brokers to connect").Default("localhost:9092").Strings()
-	topic      = kingpin.Flag("topic", "Topic name").Default("important").String()
-	maxRetry   = kingpin.Flag("maxRetry", "Retry limit").Default("5").Int()
+	brokerList      = kingpin.Flag("brokerList", "List of brokers to connect").Default("localhost:9092").Strings()
+	topic           = kingpin.Flag("topic", "Topic name").Default("topic").String()
+	topicRangeStart = kingpin.Flag("topicRangeStart", "Topic range Start").Default("0").Int()
+	topicRangeEnd   = kingpin.Flag("topicRangeEnd", "Topic range End").Default("0").Int()
+	nMessages       = kingpin.Flag("nMessages", "Number of Messages").Default("1000").Int()
+	nThreads        = kingpin.Flag("nThreads", "Number of Threads").Default("10").Int()
+	maxRetry        = kingpin.Flag("maxRetry", "Retry limit").Default("2").Int()
 )
 
+var wg sync.WaitGroup
+
+func produceInRandomTopic(producer sarama.SyncProducer) {
+	defer wg.Done()
+
+	var topicName string
+	if *topicRangeStart == 0 && *topicRangeEnd == 0 {
+		topicName = *topic
+	} else if *topicRangeStart == *topicRangeEnd {
+		topicName = fmt.Sprintf("%s-%d", *topic, *topicRangeStart)
+	} else {
+		topicName = fmt.Sprintf("%s-%d", *topic, rand.Intn(*topicRangeEnd-*topicRangeStart))
+	}
+
+	msg := &sarama.ProducerMessage{
+		Topic: topicName,
+		Value: sarama.StringEncoder("Something Cool"),
+	}
+
+	partition, offset, err := producer.SendMessage(msg)
+	if err != nil {
+		log.Printf("%s", err)
+	}
+	log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", *topic, partition, offset)
+}
+
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	kingpin.Parse()
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -29,13 +65,10 @@ func main() {
 			log.Panic(err)
 		}
 	}()
-	msg := &sarama.ProducerMessage{
-		Topic: *topic,
-		Value: sarama.StringEncoder("Something Cool"),
+
+	wg.Add(*nThreads)
+	for i := 0; i < *nMessages; i++ {
+		go produceInRandomTopic(producer)
 	}
-	partition, offset, err := producer.SendMessage(msg)
-	if err != nil {
-		log.Panic(err)
-	}
-	log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", *topic, partition, offset)
+	wg.Wait()
 }
