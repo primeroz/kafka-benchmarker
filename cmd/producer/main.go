@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"runtime"
 	"sync"
@@ -45,10 +46,11 @@ func produceInRandomTopic(producer sarama.SyncProducer, messages int) {
 		topicName = fmt.Sprintf("%s-%d", *topic, *topicRangeStart)
 	} else {
 		topicName = fmt.Sprintf("%s-%d", *topic, rand.Intn(*topicRangeEnd-*topicRangeStart))
+		//topicName = fmt.Sprintf("%s-%d", *topic, int(math.Min((rand.ExpFloat64()/10)*max, max)))
 	}
 
 	for m := 0; m < messages; m++ {
-		myStr := RandomString(rand.Intn(1000000))
+		myStr := RandomString(int(math.Min(((rand.NormFloat64() * float64(1000000/2)) + float64(1000000/2)), 999999)))
 
 		msg := &sarama.ProducerMessage{
 			Topic: topicName,
