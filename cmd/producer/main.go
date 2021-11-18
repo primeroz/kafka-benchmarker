@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"runtime"
 	"sync"
 	"time"
 
@@ -45,7 +46,7 @@ func produceInRandomTopic(producer sarama.SyncProducer) {
 	if err != nil {
 		log.Printf("%s", err)
 	}
-	log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", *topic, partition, offset)
+	log.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", topicName, partition, offset)
 }
 
 func main() {
@@ -66,8 +67,9 @@ func main() {
 		}
 	}()
 
-	wg.Add(*nThreads)
+	runtime.GOMAXPROCS(*nThreads)
 	for i := 0; i < *nMessages; i++ {
+		wg.Add(1)
 		go produceInRandomTopic(producer)
 	}
 	wg.Wait()
