@@ -81,6 +81,9 @@ func main() {
 	config.Net.ReadTimeout = (5 * time.Second)
 	config.Net.DialTimeout = (5 * time.Second)
 	config.Net.WriteTimeout = (5 * time.Second)
+	config.Metadata.Retry.Max = 1
+	config.Metadata.Retry.Backoff = (1 * time.Second)
+	config.Metadata.RefreshFrequency = (5 * time.Second)
 	producer, err := sarama.NewSyncProducer(*brokerList, config)
 	if err != nil {
 		log.Panic(err)
