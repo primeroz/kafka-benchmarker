@@ -76,6 +76,7 @@ func main() {
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Retry.Max = *maxRetry
 	config.Producer.Return.Successes = true
+	config.Producer.Return.Errors = true
 	//config.Producer.Retry.Backoff = (5 * time.Second)
 	//config.Producer.Timeout = (5 * time.Second)
 	//config.Net.ReadTimeout = (5 * time.Second)
