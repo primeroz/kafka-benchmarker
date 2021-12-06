@@ -15,13 +15,14 @@ import (
 )
 
 var (
-	brokerList      = kingpin.Flag("brokerList", "List of brokers to connect").Default("localhost:9092").Strings()
-	topic           = kingpin.Flag("topic", "Topic name").Default("topic").String()
-	topicRangeStart = kingpin.Flag("topicRangeStart", "Topic range Start").Default("0").Int()
-	topicRangeEnd   = kingpin.Flag("topicRangeEnd", "Topic range End").Default("0").Int()
-	nMessages       = kingpin.Flag("nMessages", "Number of Messages").Default("1000").Int()
-	nThreads        = kingpin.Flag("nThreads", "Number of Threads").Default("3").Int()
-	maxRetry        = kingpin.Flag("maxRetry", "Retry limit").Default("1").Int()
+	brokerList       = kingpin.Flag("brokerList", "List of brokers to connect").Default("localhost:9092").Strings()
+	topic            = kingpin.Flag("topic", "Topic name").Default("topic").String()
+	topicRangeStart  = kingpin.Flag("topicRangeStart", "Topic range Start").Default("0").Int()
+	topicRangeEnd    = kingpin.Flag("topicRangeEnd", "Topic range End").Default("0").Int()
+	nMessages        = kingpin.Flag("nMessages", "Number of Messages").Default("1000").Int()
+	nThreads         = kingpin.Flag("nThreads", "Number of Threads").Default("3").Int()
+	maxRetry         = kingpin.Flag("maxRetry", "Retry limit").Default("1").Int()
+	fairDistribution = kingpin.Flag("fair", "Distribute messages fairly over topics, default is false").Bool()
 )
 
 var wg sync.WaitGroup
@@ -47,11 +48,16 @@ func produceInRandomTopic(producer sarama.SyncProducer, messages int) {
 		} else if *topicRangeStart == *topicRangeEnd {
 			topicName = fmt.Sprintf("%s-%d", *topic, *topicRangeStart)
 		} else {
-			topicName = fmt.Sprintf("%s-%d", *topic, rand.Intn(*topicRangeEnd-*topicRangeStart)+(*topicRangeStart))
-			//topicName = fmt.Sprintf("%s-%d", *topic, int(math.Min((rand.ExpFloat64()/10)*max, max)))
+			var topicId int
+
+			if !*fairDistribution {
+				topicId = int(math.Min((rand.ExpFloat64()/15.0)*(float64(*topicRangeEnd-*topicRangeStart)+float64(*topicRangeStart)), float64(*topicRangeEnd)))
+			} else {
+				topicId = rand.Intn(*topicRangeEnd-*topicRangeStart) + (*topicRangeStart)
+			}
+			topicName = fmt.Sprintf("%s-%d", *topic, topicId)
 		}
 
-		//myStr := RandomString(int(math.Min((math.Abs(rand.NormFloat64()*float64(1000000/2)) + float64(1000000/2)), 999999)))
 		strLength := math.Min((rand.ExpFloat64()/10)*1000000, 999999)
 		myStr := RandomString(int(strLength))
 
