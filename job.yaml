@@ -1,0 +1,58 @@
+---
+apiVersion: batch/v1           
+kind: Job    
+metadata:
+  labels:
+    app: kafka-benchmark-job
+  name: kafka-benchmark-job
+  namespace: sre-test-kafka
+spec:
+  backoffLimit: 6
+  completions: 3
+  parallelism: 3
+  template:
+    metadata:
+      labels:
+        app: kafka-benchmark-job
+    spec:
+      restartPolicy: Never
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: kafka-benchmark-job
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: kafka-benchmark-job
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+            weight: 100
+      containers:
+        - env:
+          - name: BOOTSTRAP_SERVERS
+            value: sre-test-kafka-bootstrap.sre-test-kafka.svc:9092
+          - name: HOME
+            value: /tmp
+          command: ["/usr/local/bin/producer"]
+          args:
+            - --brokerList=$BOOTSTRAP_SERVERS
+            - --topicRangeEnd=500
+            - --nMessages=1000000
+            - --nThreads=2
+          image: quay.io/fciocchetti0/kafka-benchmarker:master
+          imagePullPolicy: Always
+          name: kafka-benchmarker
+          resources:
+            limits:
+              cpu: "2"
+              memory: 3Gi
+            requests:
+              cpu: "1"
+              memory: 2Gi
+      imagePullSecrets:
+      - name: quay-docker-secret
+      - name: dockerhub-docker-secret
