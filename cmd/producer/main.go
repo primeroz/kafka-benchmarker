@@ -51,7 +51,7 @@ func produceInRandomTopic(producer sarama.SyncProducer, messages int) {
 			var topicId int
 
 			if !*fairDistribution {
-				topicId = int(math.Min((rand.ExpFloat64()/15.0)*(float64(*topicRangeEnd-*topicRangeStart)+float64(*topicRangeStart)), float64(*topicRangeEnd)))
+				topicId = int(math.Min(((rand.ExpFloat64()/15.0)*(float64(*topicRangeEnd-*topicRangeStart)))+float64(*topicRangeStart), float64(*topicRangeEnd)))
 			} else {
 				topicId = rand.Intn(*topicRangeEnd-*topicRangeStart) + (*topicRangeStart)
 			}
