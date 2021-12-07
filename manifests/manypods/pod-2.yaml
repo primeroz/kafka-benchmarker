@@ -41,10 +41,10 @@ spec:
       - --nThreads=2
     resources:
       limits:
-        cpu: "1"
-        memory: 2Gi
+        cpu: "2"
+        memory: 1Gi
       requests:
         cpu: "1"
-        memory: 2Gi
+        memory: 1Gi
     terminationMessagePath: /dev/termination-log
     terminationMessagePolicy: File
