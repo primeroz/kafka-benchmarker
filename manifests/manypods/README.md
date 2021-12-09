@@ -1,0 +1,9 @@
+kubecfg show topics-write-test.jsonnet --ext-str writeTopics=5000 --ext-str fair=true --as=admin
+kubecfg delete topics-write-test.jsonnet --ext-str writeTopics=5000 --ext-str fair=true --as=admin
+kubecfg show topics-write-test.jsonnet --ext-str writeTopics=500 --ext-str fair=false --as=admin
+kubecfg update topics-write-test.jsonnet --ext-str writeTopics=500 --ext-str fair=false --as=admin
+kubecfg delete topics-write-test.jsonnet --ext-str writeTopics=500 --ext-str fair=false --as=admin
+kubecfg update topics-write-test.jsonnet --ext-str writeTopics=10000 --ext-str fair=false --as=admin
+kubecfg delete topics-write-test.jsonnet --ext-str writeTopics=10000 --ext-str fair=false --as=admin
+kubecfg update topics-write-test.jsonnet --ext-str writeTopics=10000 --ext-str fair=true --as=admin
+kubecfg delete topics-write-test.jsonnet --ext-str writeTopics=10000 --ext-str fair=true --as=admin
