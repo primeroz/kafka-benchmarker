@@ -5,6 +5,7 @@
   messages:: '1000000',
   threads:: '2',
   fair:: false,
+  memory:: '1Gi',
 
   pod:: {
     apiVersion: 'v1',
@@ -75,11 +76,11 @@
           resources: {
             limits: {
               cpu: '2',
-              memory: '1Gi',
+              memory: $.memory,
             },
             requests: {
               cpu: '1',
-              memory: '1Gi',
+              memory: $.memory,
             },
           },
           terminationMessagePath: '/dev/termination-log',
