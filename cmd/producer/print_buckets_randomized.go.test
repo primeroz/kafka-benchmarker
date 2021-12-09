@@ -1,0 +1,66 @@
+// You can edit this code!
+// Click here and start typing.
+package main
+
+import (
+	"fmt"
+	"math"
+	"math/rand"
+)
+
+func sumUp(numbs ...int) int {
+	result := 0
+	for _, numb := range numbs {
+		result += numb
+	}
+	return result
+}
+
+func main() {
+	var topicId int
+	topicRangeStart := 0
+	topicRangeEnd := 24999
+	messages := 1000000
+	dict := make(map[int]int)
+
+	// Hold buckets of topics , each bucket 10% of the whole topics range
+	bucket := make(map[int]float64)
+
+	for m := 0; m < messages; m++ {
+		//topicId = rand.Intn(topicRangeEnd-topicRangeStart) + (topicRangeStart)
+		topicId = int(math.Min(((rand.ExpFloat64()/15.0)*(float64(topicRangeEnd-topicRangeStart)))+float64(topicRangeStart), float64(topicRangeEnd)))
+		dict[topicId] = dict[topicId] + 1
+
+		switch percentile := (float64(topicId+1) / float64(topicRangeEnd+1)) * 100; {
+		case percentile > 0 && percentile <= 10:
+			bucket[10] = bucket[10] + 1
+		case percentile > 10 && percentile <= 20:
+			bucket[20] = bucket[20] + 1
+		case percentile > 20 && percentile <= 30:
+			bucket[30] = bucket[30] + 1
+		case percentile > 30 && percentile <= 40:
+			bucket[40] = bucket[40] + 1
+		case percentile > 40 && percentile <= 50:
+			bucket[50] = bucket[50] + 1
+		case percentile > 50 && percentile <= 60:
+			bucket[60] = bucket[60] + 1
+		case percentile > 60 && percentile <= 70:
+			bucket[70] = bucket[70] + 1
+		case percentile > 70 && percentile <= 80:
+			bucket[80] = bucket[80] + 1
+		case percentile > 80 && percentile <= 90:
+			bucket[90] = bucket[90] + 1
+		case percentile > 90 && percentile <= 100:
+			bucket[100] = bucket[100] + 1
+		}
+	}
+	//fmt.Println(dict)
+	//fmt.Println(bucket)
+	for k, v := range bucket {
+		bucket[k] = float64(v) / float64(messages) * 100
+
+	}
+	fmt.Println(bucket)
+
+}
+
